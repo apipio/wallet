@@ -1,6 +1,7 @@
 {
   "name": "apip/wallet",
   "description": "apip.io Wallet",
+  "license": "MIT",
   "type": "library",
   "require": {},
   "authors": [
