@@ -1,0 +1,17 @@
+{
+  "name": "apip/wallet",
+  "description": "apip.io Wallet",
+  "type": "library",
+  "require": {},
+  "authors": [
+    {
+      "name": "apip",
+      "email": "support@apip.io"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Apip\\Wallet\\": "src/"
+    }
+  }
+}
