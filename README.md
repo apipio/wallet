@@ -28,29 +28,49 @@ composer require apip/wallet
 
 ![](config.png)
 
-然后在 ***.env*** 添加设置 APIP_APP_ID、APIP_APP_KEY
+然后在 **_.env_** 添加设置 APIP_APP_ID、APIP_APP_KEY
 
 #### 接口方法
 
 ```php
 
 # 初始化
-$apip = new Apip();
+$apip = new \Apip\Wallet\Apip();
 
-# 创建钱包
+# 创建所有协议的钱包，可能会消耗一点时间，建议使用下面，创建指定协议
 $apip->create('test_label')
 
 # 创建指定协议
 $apip->create('test_label', 'erc20')
-$apip->create('test_label', 'bsc20_usdt')
 
-# 提现 使用热钱包
+# 创建指定协议，支持多个协议多个币种
+$apip->create('test_label', 'bsc20,erc20')
+$apip->create('test_label', 'bnb,bsc20')
+
+# 提现 使用热钱包提现
 $apip->create('1.00', '0x0000towallet', 'bsc20_usdt')
 
-# 指定钱包
+# 提现 指定发送钱包来提现
 $apip->create('1.00', '0x0000towallet', 'bsc20_usdt', '0x000from_wallet')
+
+
+// 获得汇总数据
+$apip->data('bsc20_usdt');
+
+// 获得汇总数据 支持多个协议多个币种
+$apip->data('bnb,bsc20_usdt');
+
+// 汇总钱包
+$apip->collect('bsc20_usdt');
+
+// 汇总钱包 支持多个协议多个币种
+$apip->collect('bnb,bsc20_usdt');
 
 # 接受支付回调在方法开头调用以下方法验证签名和各个请求参数，不合格抛出异常，可以使用try/catch进行处理
 $apip->validate();
 
 ```
+
+#### 官方网站
+
+[apip.io 官方](https://apip.io/)

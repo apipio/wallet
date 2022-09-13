@@ -37,7 +37,6 @@ class Apip
     }
 
 
-
     /**
      * 签名算法
      *
@@ -89,6 +88,22 @@ class Apip
     }
 
     /**
+     * 查询余额
+     */
+    public function balance(string $label, string $address = '')
+    {
+        $params = [
+            'app_id' => $this->app_id,
+            'label' => $label,
+            'address' => $address,
+        ];
+        $params['sign'] = $this->sign($params, $this->app_key);
+        $response = $this->client->post('wallet.balance', $params);
+
+        return $this->handle($response);
+    }
+
+    /**
      * 导入钱包
      */
     public function import(string $chain, string $label, string $address, string $private_key)
@@ -125,17 +140,24 @@ class Apip
     }
 
     /**
-     * 处理数据
+     * 汇总数据
      */
-    public function handle(Response $response)
+    public function data(string $symbol)
     {
-        return $response->json();
+        $params = [
+            'app_id' => $this->app_id,
+            'symbol' => $symbol,
+        ];
+        $params['sign'] = $this->sign($params, $this->app_key);
+        $response = $this->client->post('wallet.data', $params);
+
+        return $this->handle($response);
     }
 
     /**
      * 汇总钱包
      */
-    public function collection(string $symbol = 'bsc20_usdt,trc20_usdt')
+    public function collect(string $symbol = 'bsc20_usdt,trc20_usdt')
     {
         $params = [
             'app_id' => $this->app_id,
@@ -147,5 +169,13 @@ class Apip
         // $response->dump();
 
         return $this->handle($response);
+    }
+
+    /**
+     * 处理数据
+     */
+    public function handle(Response $response)
+    {
+        return $response->json();
     }
 }
