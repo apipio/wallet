@@ -27,3 +27,28 @@ composer require apip/wallet
 如图：
 
 ![](config.png)
+
+然后在 ***.env*** 添加设置 APIP_APP_ID、APIP_APP_KEY
+
+#### 接口方法
+
+```php
+
+# 初始化
+$apip = new Apip();
+
+# 创建钱包
+$apip->create('test_label')
+
+# 创建指定协议
+$apip->create('test_label', 'erc20')
+$apip->create('test_label', 'bsc20_usdt')
+
+# 提现 使用热钱包
+$apip->create('1.00', '0x0000towallet', 'bsc20_usdt')
+
+# 指定钱包
+$apip->create('1.00', '0x0000towallet', 'bsc20_usdt', '0x000from_wallet')
+
+
+```
