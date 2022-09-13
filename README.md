@@ -50,5 +50,7 @@ $apip->create('1.00', '0x0000towallet', 'bsc20_usdt')
 # 指定钱包
 $apip->create('1.00', '0x0000towallet', 'bsc20_usdt', '0x000from_wallet')
 
+# 接受支付回调在方法开头调用以下方法验证签名和各个请求参数，不合格抛出异常，可以使用try/catch进行处理
+$apip->validate();
 
 ```
