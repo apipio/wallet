@@ -2,6 +2,8 @@
 
 namespace Apip\Wallet;
 
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -51,6 +53,23 @@ class Apip
         $md5_sign = md5(urldecode(http_build_query($params)) . $app_key);
 
         return strtoupper($md5_sign);
+    }
+
+    public function validate(Request $request)
+    {
+        $request->validate([
+            'app_id' => 'required|string',
+            'from' => 'required|string',
+            'amount' => 'required|numeric',
+            'to' => 'required|string',
+            'chain_name' => 'required|string',
+            'token_name' => 'required|string',
+            'sign' => 'required|string',
+        ]);
+
+        if ($request->app_id == config('services.apip.app_id') and !sign($request->all(), config('services.apip.app_key'))) {
+            throw new Exception('签名不正确');
+        }
     }
 
     /**
