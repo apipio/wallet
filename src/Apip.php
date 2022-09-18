@@ -66,7 +66,7 @@ class Apip
             'sign' => 'required|string',
         ]);
 
-        if ($request->app_id == config('services.apip.app_id') and !sign($request->all(), config('services.apip.app_key'))) {
+        if ($request->app_id == config('services.apip.app_id') and !$this->sign($request->all(), config('services.apip.app_key'))) {
             throw new Exception('签名不正确');
         }
     }
