@@ -57,7 +57,7 @@ class Apip
     {
         $request->validate([
             'app_id' => 'required|string',
-            'from' => 'required|string',
+            'from' => 'nullable|string',
             'amount' => 'nullable|numeric',
             'to' => 'required|string',
             'chain_name' => 'required|string',
