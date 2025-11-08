@@ -26,7 +26,7 @@ class Apip
         $this->client = Http::retry(3, 3000)->withOptions([
             'verify' => false,
             'headers' => [
-                'User-Agent' => config('app.name'),
+                'User-Agent' => 'APIP',
             ],
             'base_uri' => $uri,
             // 'timeout' => 10,
@@ -37,8 +37,12 @@ class Apip
 
     /**
      * 签名算法
+     *
+     * @param  [type] $params  [description]
+     * @param  [type] $app_key [description]
+     * @return [type]          [description]
      */
-    public function sign(array $params, string $app_key): string
+    public function sign(array $params, string $app_key)
     {
         unset($params['app_key'], $params['sign'], $params['sign_type']);
         ksort($params);
@@ -48,16 +52,11 @@ class Apip
         return strtoupper($md5_sign);
     }
 
-    /**
-     * 验证请求
-     *
-     * @return void
-     */
     public function validate(Request $request)
     {
         $request->validate([
             'app_id' => 'required|string',
-            'from' => 'nullable|string',
+            'from' => 'required|string',
             'amount' => 'nullable|numeric',
             'to' => 'required|string',
             'chain_name' => 'required|string',
@@ -70,10 +69,6 @@ class Apip
 
     /**
      * 创建钱包
-     *
-     * @param  string  $label  标签名称
-     * @param  string  $symbol  币种符号,例如 bsc20_usdt
-     * @return mixed
      */
     public function create(string $label, string $symbol = '')
     {
@@ -90,10 +85,6 @@ class Apip
 
     /**
      * 查询余额
-     *
-     * @param  string  $label  标签名称
-     * @param  string  $address  钱包地址
-     * @return mixed
      */
     public function balance(string $label, string $address = '')
     {
@@ -110,14 +101,8 @@ class Apip
 
     /**
      * 导入钱包
-     *
-     * @param  string  $chain  链名称
-     * @param  string  $label  标签名称
-     * @param  string  $address  钱包地址
-     * @param  string|null  $private_key  私钥
-     * @return mixed
      */
-    public function import(string $chain, string $label, string $address, ?string $private_key)
+    public function import(string $chain, string $label, string $address, string $private_key)
     {
         $params = [
             'app_id' => $this->app_id,
@@ -134,14 +119,8 @@ class Apip
 
     /**
      * 提现钱包
-     *
-     * @param  float  $amount  提现金额
-     * @param  string  $to  提现地址
-     * @param  string  $symbol  币种符号,例如 bsc20_usdt
-     * @param  string|null  $from  来源标签,例如 withdraw
-     * @return mixed
      */
-    public function withdraw(float $amount, string $to, string $symbol, ?string $from = null)
+    public function withdraw($amount, $to, string $symbol, $from = null)
     {
         $params = [
             'app_id' => $this->app_id,
@@ -158,9 +137,6 @@ class Apip
 
     /**
      * 汇总数据
-     *
-     * @param  string  $symbol  币种符号,例如 bsc20_usdt
-     * @return mixed
      */
     public function data(string $symbol)
     {
@@ -176,9 +152,6 @@ class Apip
 
     /**
      * 汇总钱包
-     *
-     * @param  string  $symbol  币种符号,例如 bsc20_usdt,trc20_usdt
-     * @return mixed
      */
     public function collect(string $symbol = 'bsc20_usdt,trc20_usdt')
     {
@@ -196,11 +169,29 @@ class Apip
 
     /**
      * 处理数据
-     *
-     * @return mixed
      */
     public function handle(Response $response)
     {
         return $response->json();
+    }
+
+    /**
+     * 格式化以太坊数量
+     *
+     * @param  string  $value  原始值
+     * @param  int  $decimals  小数位数 (例如: 18 表示 ether, 6 表示 USDT)
+     * @return string 格式化后的数值字符串
+     */
+    public function formatUints(string $value, int $decimals = 18): string
+    {
+        // 使用 bcmath 处理大数
+        $divisor = bcpow('10', (string) $decimals);
+        $result = bcdiv($value, $divisor, $decimals);
+
+        // 去除尾部的零
+        $result = rtrim($result, '0');
+        $result = rtrim($result, '.');
+
+        return $result;
     }
 }
