@@ -2,18 +2,17 @@
 
 namespace Apip\Wallet;
 
-use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class Apip
-
 {
     public $client;
 
-    public $app_id = "";
-    public $app_key = "";
+    public $app_id = '';
+
+    public $app_key = '';
 
     public function __construct($uri = '')
     {
@@ -27,7 +26,7 @@ class Apip
         $this->client = Http::retry(3, 3000)->withOptions([
             'verify' => false,
             'headers' => [
-                'User-Agent' => 'APIP',
+                'User-Agent' => config('app.name'),
             ],
             'base_uri' => $uri,
             // 'timeout' => 10,
@@ -36,43 +35,45 @@ class Apip
         ]);
     }
 
-
     /**
      * 签名算法
-     *
-     * @param  [type] $params  [description]
-     * @param  [type] $app_key [description]
-     * @return [type]          [description]
      */
-    public function sign(array $params, string $app_key)
+    public function sign(array $params, string $app_key): string
     {
         unset($params['app_key'], $params['sign'], $params['sign_type']);
         ksort($params);
         $params = array_filter($params);
-        $md5_sign = md5(urldecode(http_build_query($params)) . $app_key);
+        $md5_sign = md5(urldecode(http_build_query($params)).$app_key);
 
         return strtoupper($md5_sign);
     }
 
+    /**
+     * 验证请求
+     *
+     * @return void
+     */
     public function validate(Request $request)
     {
         $request->validate([
             'app_id' => 'required|string',
             'from' => 'required|string',
-            'amount' => 'required|numeric',
+            'amount' => 'nullable|numeric',
             'to' => 'required|string',
             'chain_name' => 'required|string',
-            'token_name' => 'required|string',
+            'token_name' => 'nullable|string',
             'sign' => 'required|string',
         ]);
 
-        if ($request->app_id == config('services.apip.app_id') and !$this->sign($request->all(), config('services.apip.app_key'))) {
-            throw new Exception('签名不正确');
-        }
+        throw_if($request->app_id == config('services.apip.app_id') and ! $this->sign($request->all(), config('services.apip.app_key')), '签名不正确');
     }
 
     /**
      * 创建钱包
+     *
+     * @param  string  $label  标签名称
+     * @param  string  $symbol  币种符号,例如 bsc20_usdt
+     * @return mixed
      */
     public function create(string $label, string $symbol = '')
     {
@@ -89,6 +90,10 @@ class Apip
 
     /**
      * 查询余额
+     *
+     * @param  string  $label  标签名称
+     * @param  string  $address  钱包地址
+     * @return mixed
      */
     public function balance(string $label, string $address = '')
     {
@@ -105,8 +110,14 @@ class Apip
 
     /**
      * 导入钱包
+     *
+     * @param  string  $chain  链名称
+     * @param  string  $label  标签名称
+     * @param  string  $address  钱包地址
+     * @param  string|null  $private_key  私钥
+     * @return mixed
      */
-    public function import(string $chain, string $label, string $address, string $private_key)
+    public function import(string $chain, string $label, string $address, ?string $private_key)
     {
         $params = [
             'app_id' => $this->app_id,
@@ -123,8 +134,14 @@ class Apip
 
     /**
      * 提现钱包
+     *
+     * @param  float  $amount  提现金额
+     * @param  string  $to  提现地址
+     * @param  string  $symbol  币种符号,例如 bsc20_usdt
+     * @param  string|null  $from  来源标签,例如 withdraw
+     * @return mixed
      */
-    public function withdraw($amount, $to, string $symbol, $from = null)
+    public function withdraw(float $amount, string $to, string $symbol, ?string $from = null)
     {
         $params = [
             'app_id' => $this->app_id,
@@ -141,6 +158,9 @@ class Apip
 
     /**
      * 汇总数据
+     *
+     * @param  string  $symbol  币种符号,例如 bsc20_usdt
+     * @return mixed
      */
     public function data(string $symbol)
     {
@@ -156,6 +176,9 @@ class Apip
 
     /**
      * 汇总钱包
+     *
+     * @param  string  $symbol  币种符号,例如 bsc20_usdt,trc20_usdt
+     * @return mixed
      */
     public function collect(string $symbol = 'bsc20_usdt,trc20_usdt')
     {
@@ -173,6 +196,8 @@ class Apip
 
     /**
      * 处理数据
+     *
+     * @return mixed
      */
     public function handle(Response $response)
     {
