@@ -1,0 +1,39 @@
+{
+    "name": "apip/wallet",
+    "description": "apip.io Wallet",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.3",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/validation": "^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "illuminate/config": "^11.0|^12.0|^13.0",
+        "phpunit/phpunit": "^12.0"
+    },
+    "authors": [
+        {
+            "name": "apip",
+            "email": "support@apip.io"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Apip\\Wallet\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Apip\\Wallet\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Apip\\Wallet\\ApipServiceProvider"
+            ]
+        }
+    }
+}
