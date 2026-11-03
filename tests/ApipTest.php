@@ -9,7 +9,6 @@ use Apip\Wallet\Exceptions\RequestFailedException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 
 final class ApipTest extends TestCase
@@ -97,7 +96,20 @@ final class ApipTest extends TestCase
         $payload = $this->payload();
         unset($payload['sign']);
 
-        $this->expectException(ValidationException::class);
+        $this->expectException(InvalidSignatureException::class);
+        $this->expectExceptionMessage('缺少必要信息');
+
+        $this->apip()->validate($this->makeRequest($payload));
+    }
+
+    #[Test]
+    public function validate_rejects_missing_required_field(): void
+    {
+        $payload = $this->payload();
+        unset($payload['to']);
+
+        $this->expectException(InvalidSignatureException::class);
+        $this->expectExceptionMessage('缺少必要信息');
 
         $this->apip()->validate($this->makeRequest($payload));
     }

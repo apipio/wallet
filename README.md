@@ -48,16 +48,15 @@ $apip = app(Apip::class);
 ## 回调验签
 
 ```php
-use Apip\Wallet\Exceptions\InvalidSignatureException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+use Throwable;
 
 public function callback(Request $request, Apip $apip)
 {
     try {
         $apip->validate($request);
-    } catch (ValidationException|InvalidSignatureException $e) {
+    } catch (Throwable $e) {
         Log::warning('apip.io 回调失败', ['message' => $e->getMessage()]);
 
         return 'fail';

@@ -101,21 +101,24 @@ class Apip
      *
      * @param  Request  $request  网关回调请求
      *
-     * @throws ValidationException 请求参数不合法时抛出
      * @throws ConfigurationException 应用凭据缺失时抛出
-     * @throws InvalidSignatureException 应用 ID 或签名不匹配时抛出
+     * @throws InvalidSignatureException 缺少必要信息, 应用 ID 或签名不匹配时抛出
      */
     public function validate(Request $request): void
     {
-        Validator::make($request->all(), [
-            'app_id' => 'required|string',
-            'from' => 'nullable|string',
-            'amount' => 'nullable|numeric',
-            'to' => 'required|string',
-            'chain_name' => 'required|string',
-            'token_name' => 'nullable|string',
-            'sign' => 'required|string',
-        ])->validate();
+        try {
+            Validator::make($request->all(), [
+                'app_id' => 'required|string',
+                'from' => 'nullable|string',
+                'amount' => 'nullable|numeric',
+                'to' => 'required|string',
+                'chain_name' => 'required|string',
+                'token_name' => 'nullable|string',
+                'sign' => 'required|string',
+            ])->validate();
+        } catch (ValidationException) {
+            throw new InvalidSignatureException('缺少必要信息');
+        }
 
         $app_id = $this->resolveConfig('app_id');
         $app_key = $this->resolveConfig('app_key');
