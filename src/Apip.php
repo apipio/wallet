@@ -23,20 +23,6 @@ use SensitiveParameter;
 class Apip
 {
     /**
-     * 参与签名的回调字段.
-     *
-     * 白名单之外的字段一律忽略, 防止额外参数影响验签结果.
-     */
-    private const SIGNED_FIELDS = [
-        'app_id',
-        'from',
-        'amount',
-        'to',
-        'chain_name',
-        'token_name',
-    ];
-
-    /**
      * HTTP 客户端实例.
      */
     public PendingRequest $client;
@@ -144,7 +130,7 @@ class Apip
             throw new InvalidSignatureException('应用 ID 不匹配');
         }
 
-        $expected = $this->sign($this->signedParams($request), $app_key);
+        $expected = $this->sign($request->all(), $app_key);
         $request_sign = $request->input('sign');
         $provided = is_string($request_sign) ? strtoupper($request_sign) : '';
 
@@ -181,16 +167,5 @@ class Apip
     private function resolveConfig(string $key): mixed
     {
         return Config::get('apip.'.$key) ?? Config::get('services.apip.'.$key);
-    }
-
-    /**
-     * 提取参与签名的回调字段.
-     *
-     * @param  Request  $request  网关回调请求
-     * @return array<string, mixed> 白名单字段
-     */
-    private function signedParams(Request $request): array
-    {
-        return array_intersect_key($request->all(), array_flip(self::SIGNED_FIELDS));
     }
 }

@@ -125,15 +125,33 @@ final class ApipTest extends TestCase
     }
 
     #[Test]
-    public function validate_ignores_fields_outside_whitelist(): void
+    public function validate_accepts_event_callback(): void
     {
-        $payload = $this->payload();
-        $payload['coupon'] = 'free';
-        $payload['note'] = 'injected';
+        $payload = [
+            'app_id' => self::APP_ID,
+            'to' => '0xto',
+            'chain_name' => 'bsc',
+            'type' => 'event',
+            'event_name' => 'Withdrawal',
+            'hash' => '0xabc',
+        ];
+
+        $payload['sign'] = $this->apip()->sign($payload, self::APP_KEY);
 
         $this->apip()->validate($this->makeRequest($payload));
 
         $this->addToAssertionCount(1);
+    }
+
+    #[Test]
+    public function validate_rejects_modified_extra_field(): void
+    {
+        $payload = $this->payload();
+        $payload['hash'] = '0xmodified';
+
+        $this->expectException(InvalidSignatureException::class);
+
+        $this->apip()->validate($this->makeRequest($payload));
     }
 
     #[Test]

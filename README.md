@@ -67,7 +67,7 @@ public function callback(Request $request, Apip $apip)
 }
 ```
 
-> 参照支付宝异步通知约定:处理成功返回 `success`,其余返回 `fail`.不返回具体原因,否则会泄露业务信息.
+> 参照支付宝异步通知约定:处理成功返回 `success`,其余返回 `fail`.
 
 完整的订单幂等与金额校验示例见 `examples/ApipCallbackController.php`.
 
@@ -113,13 +113,6 @@ try {
     report($e);
 }
 ```
-
-## 安全
-
-- 默认开启 TLS 证书校验.
-- 密钥参数标记 `SensitiveParameter`,不会出现在异常堆栈.
-- 密钥禁止提交到版本库或写入日志.
-- 回调不包含时间戳与 nonce,生产环境需按订单号做幂等.
 
 ## 许可证
 
